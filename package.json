@@ -1,0 +1,13 @@
+{
+  "name": "personal-portfolio",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "http-server . -p 5173 -c-1",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "http-server": "^14.1.1"
+  }
+}

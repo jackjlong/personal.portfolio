@@ -1,0 +1,10 @@
+node_modules
+e2e
+test-results
+playwright-report
+shots
+package.json
+package-lock.json
+playwright.config.js
+BRIEF.md
+README.md
