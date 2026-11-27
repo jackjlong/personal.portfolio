@@ -14,9 +14,21 @@ const spots = {
   home: { x: 0, y: 0, w: 340, h: 268 },
   now: { x: 0, y: -250, w: 270, h: 180 },
   about: { x: -360, y: 16, w: 270, h: 190 },
-  work: { x: 390, y: 0, w: 420, h: 260 },
-  contact: { x: 16, y: 276, w: 290, h: 180 },
+  work: { x: 470, y: -8, w: 520, h: 330 },
+  contact: { x: 20, y: 320, w: 310, h: 230 },
 };
+
+const iconX = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14.7 10.3 21.5 2h-1.6l-5.9 7.2L9.2 2H2.5l7.2 11.1L2.5 22h1.6l6.3-7.7L14.8 22h6.7l-6.8-11.7Zm-2.2 2.7-.7-1.1L4.6 3.3h2.5l4.7 7.1.7 1.1 6.1 9.2h-2.5l-5-7.7Z"/></svg>';
+const iconMail = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 6h18a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1Zm9 6.2L19.4 8H4.6L12 12.2ZM4 16.5h16V9.3l-8 4.6-8-4.6v7.2Z"/></svg>';
+const iconIn = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.5 9H4V20h2.5V9ZM5.2 3.5a1.6 1.6 0 1 0 .02 3.2 1.6 1.6 0 0 0-.02-3.2ZM20 20h-2.5v-5.6c0-1.6-.6-2.6-2-2.6-1 0-1.6.7-1.9 1.4-.1.2-.1.6-.1.9V20H11V9h2.4v1.5c.4-.7 1.3-1.8 3.2-1.8 2.3 0 4 1.5 4 4.8V20Z"/></svg>';
+
+function contactButtons(withCopy) {
+  const mail = `<a class="handle" href="mailto:${esc(contact.email)}">${iconMail}<span>${esc(contact.email)}</span></a>`;
+  const copy = withCopy ? `<button type="button" class="handle copy" data-copy="${esc(contact.email)}">Copy</button>` : '';
+  return `<a class="handle" href="${esc(contact.x)}">${iconX}<span>X</span></a>
+    <div class="email-row">${mail}${copy}</div>
+    <a class="handle" href="${esc(contact.linkedin)}">${iconIn}<span>LinkedIn</span></a>`;
+}
 
 function esc(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({
@@ -30,7 +42,7 @@ function route() {
 
 const sheets = projects.map((p, i) => {
   const rot = i === 0 ? -6 : 5;
-  return `<a class="sheet" data-x="${spots.work.x + (i === 0 ? -95 : 95)}" data-y="${spots.work.y + 28}" data-w="180" data-h="130" href="#work/${esc(p.id)}" id="sheet-${esc(p.id)}" style="--rot:${rot}deg">
+  return `<a class="sheet" data-x="${spots.work.x + (i === 0 ? -120 : 120)}" data-y="${spots.work.y + 40}" data-w="230" data-h="190" href="#work/${esc(p.id)}" id="sheet-${esc(p.id)}" style="--rot:${rot}deg">
       <strong>${esc(p.name)}</strong>
       <span>${esc(p.description)}</span>
     </a>`;
@@ -40,7 +52,8 @@ world.innerHTML = `
   <article class="plate home" data-x="0" data-y="0" data-w="340" data-h="268" id="home-card">
     <div class="mark">JL</div>
     <h1>Jack Long</h1>
-    <p class="identity">Two private tools that live in the browser.</p>
+    <p class="draft">draft copy</p>
+    <p class="identity">draft: one line about me</p>
     <ul class="legend">
       <li class="leg-work"><span aria-hidden="true">▲</span> Work</li>
       <li class="leg-now"><span aria-hidden="true">◆</span> Now</li>
@@ -64,22 +77,21 @@ world.innerHTML = `
   </article>
   <article class="plate district contact" data-x="${spots.contact.x}" data-y="${spots.contact.y}" data-w="${spots.contact.w}" data-h="${spots.contact.h}">
     <a class="district-link" href="#contact"><span aria-hidden="true">■</span> Contact</a>
-    <div class="handles">
-      <a href="${esc(contact.x)}">X</a>
-      <a href="mailto:${esc(contact.email)}">${esc(contact.email)}</a>
-      <a href="${esc(contact.linkedin)}">LinkedIn</a>
-    </div>
+    <div class="handles">${contactButtons(false)}</div>
   </article>`;
 
 function place() {
   document.querySelectorAll('.plate').forEach((el) => {
+    if (el.id === 'detail-plate') return;
     const w = +el.dataset.w;
     const h = +el.dataset.h || el.offsetHeight || 120;
     el.style.left = `${+el.dataset.x - w / 2}px`;
     el.style.top = `${+el.dataset.y - h / 2}px`;
     if (el.dataset.w) el.style.width = `${w}px`;
-    if (el.classList.contains('plate')) el.style.minHeight = `${+el.dataset.h}px`;
-    if (el.id === 'detail-plate') el.style.height = `${+el.dataset.h}px`;
+    if (el.dataset.h) {
+      el.style.minHeight = `${+el.dataset.h}px`;
+      el.style.height = `${+el.dataset.h}px`;
+    }
   });
 }
 
@@ -185,9 +197,40 @@ function projectHTML(project) {
       <p class="fine">This is the real app. Anything you type stays in your browser.</p>
     </div>
     <div class="screen">
-      <p class="screen-empty">Not loaded yet. Run it here when you want the real app.</p>
+      <img class="poster" src="./posters/${esc(project.id)}.png" alt="">
       <iframe title="${esc(project.name)}, running live" loading="lazy" hidden></iframe>
     </div>
+  </article>`;
+}
+
+function nowHTML() {
+  const links = projects.map((p) => `<a class="proj" href="#work/${esc(p.id)}"><span aria-hidden="true">▲</span> ${esc(p.name)}</a>`).join('');
+  return `<article class="reading note">
+    <p class="back-row"><a class="back" href="#">Back</a></p>
+    <p class="district-link"><span aria-hidden="true">◆</span> Now</p>
+    <p class="draft">draft copy</p>
+    <h2>this week</h2>
+    <p class="lede">${esc(sections.now)}</p>
+    <div class="proj-row">${links}</div>
+  </article>`;
+}
+
+function aboutHTML() {
+  return `<article class="reading note">
+    <p class="back-row"><a class="back" href="#">Back</a></p>
+    <div class="mark">JL</div>
+    <p class="district-link"><span aria-hidden="true">●</span> About</p>
+    <p class="draft">draft copy</p>
+    <p class="lede">${esc(sections.about)}</p>
+    <div class="handles big">${contactButtons(false)}</div>
+  </article>`;
+}
+
+function contactHTML() {
+  return `<article class="reading note contact-detail">
+    <p class="back-row"><a class="back" href="#">Back</a></p>
+    <p class="district-link"><span aria-hidden="true">■</span> Contact</p>
+    <div class="handles big">${contactButtons(true)}</div>
   </article>`;
 }
 
@@ -196,9 +239,9 @@ function detailPlate() {
   if (!plate) {
     plate = document.createElement('article');
     plate.id = 'detail-plate';
-    plate.className = 'plate detail-plate';
+    plate.className = 'detail-plate';
     plate.hidden = true;
-    world.appendChild(plate);
+    viewport.appendChild(plate);
   }
   return plate;
 }
@@ -222,20 +265,27 @@ function indexHTML() {
   </div>`;
 }
 
+function openSheet(html, spot) {
+  const detail = detailPlate();
+  detail.hidden = false;
+  detail.innerHTML = html;
+  const w = Math.min(spot.w + 80, 520);
+  const h = Math.min(spot.h + 60, 360);
+  return { x: spot.x - w / 2, y: spot.y - h / 2, w, h };
+}
+
 function sync() {
   const current = route();
   indexView.hidden = current !== 'index';
   const project = current.startsWith('work/') ? byId[current.slice(5)] : null;
   const detail = detailPlate();
   overlay.hidden = true;
-  if (project) {
-    detail.hidden = false;
-    detail.dataset.x = '700';
-    detail.dataset.y = '24';
-    detail.dataset.w = '640';
-    detail.dataset.h = '420';
-    detail.innerHTML = projectHTML(project);
-  } else {
+  let frame = null;
+  if (project) frame = openSheet(projectHTML(project), spots.work);
+  else if (current === 'now') frame = openSheet(nowHTML(), spots.now);
+  else if (current === 'about') frame = openSheet(aboutHTML(), spots.about);
+  else if (current === 'contact') frame = openSheet(contactHTML(), spots.contact);
+  else {
     detail.hidden = true;
     detail.innerHTML = '';
   }
@@ -248,23 +298,33 @@ function sync() {
   });
   if (current === 'index') {
     /* leave the camera */
-  } else if (project) {
-    frameBox(700 - 320, 24 - 210, 640, 420, 48, 1.55);
-  } else if (spots[current]) frameSpot(current, 1.55);
+  } else if (frame) frameBox(frame.x, frame.y, frame.w, frame.h, 28, 1.55);
+  else if (spots[current]) frameSpot(current, 1.55);
   else frameHome();
-  document.body.classList.toggle('project-open', Boolean(project));
+  const districtOpen = current === 'work' || current === 'now' || current === 'about' || current === 'contact' || current.startsWith('work/');
+  document.body.classList.toggle('district-open', districtOpen);
   document.title = (current ? `${current} — ` : '') + 'Atlas — Jack Long';
 }
 
-world.addEventListener('click', (e) => {
+viewport.addEventListener('click', async (e) => {
+  const copy = e.target.closest('[data-copy]');
+  if (copy) {
+    try {
+      await navigator.clipboard.writeText(copy.dataset.copy);
+      copy.textContent = 'Copied';
+    } catch {
+      copy.textContent = 'Copy';
+    }
+    return;
+  }
   const run = e.target.closest('[data-run]');
   if (!run) return;
   const project = byId[run.dataset.run];
-  const frame = world.querySelector('#detail-plate iframe');
-  const empty = world.querySelector('#detail-plate .screen-empty');
+  const frame = viewport.querySelector('#detail-plate iframe');
+  const poster = viewport.querySelector('#detail-plate .poster');
   if (!project || !frame || frame.getAttribute('src')) return;
   frame.hidden = false;
-  if (empty) empty.hidden = true;
+  if (poster) poster.hidden = true;
   frame.src = project.live;
 });
 
@@ -275,7 +335,7 @@ document.querySelector('#home').addEventListener('click', () => { location.hash 
 let drag = null;
 let suppressClick = false;
 viewport.addEventListener('pointerdown', (e) => {
-  if (e.button !== 0) return;
+  if (e.button !== 0 || e.target.closest('#detail-plate')) return;
   drag = { x: e.clientX, y: e.clientY, cx: cam.x, cy: cam.y, moved: false };
 });
 viewport.addEventListener('pointermove', (e) => {
@@ -349,7 +409,8 @@ addEventListener('keydown', (e) => {
 });
 
 addEventListener('focusin', (e) => {
-  if (route().startsWith('work/')) return;
+  const open = route();
+  if (open.startsWith('work/') || open === 'now' || open === 'about' || open === 'contact') return;
   const node = e.target.closest?.('[data-x]');
   if (!node || node.id === 'detail-plate' || node.closest('.index-view, .overlay, .bar')) return;
   if (node.classList.contains('sheet')) {
