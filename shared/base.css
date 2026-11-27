@@ -5,8 +5,9 @@ img, svg, video, canvas { display: block; max-width: 100%; }
 button, input, select, textarea { font: inherit; color: inherit; }
 a { color: inherit; }
 
-/* focus ring: add .focus-ring to any custom control, links and buttons get it by default */
-:where(a, button, [tabindex], .focus-ring):focus-visible {
+/* focus ring: links, buttons and tabbable [tabindex] get it by default, add .focus-ring to anything else.
+   [tabindex="-1"] is left out so programmatic focus targets don't flash a ring */
+:where(a, button, [tabindex]:not([tabindex="-1"]), .focus-ring):focus-visible {
   outline: 3px solid #ffbf47;
   outline-offset: 3px;
   box-shadow: 0 0 0 6px #1a1a1a;
