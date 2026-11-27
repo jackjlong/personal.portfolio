@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atlas — Jack Long</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230E1A3A'/%3E%3Ctext x='4' y='22' font-size='14' font-family='sans-serif' fill='%23F6F1E7'%3EJL%3C/text%3E%3C/svg%3E">
+  <!-- proposal: JL mark. the now sentence at home is draft copy from shared content. -->
+  <link rel="stylesheet" href="./shared/base.css">
+  <link rel="stylesheet" href="./assets/styles.css">
+  <script>
+    (function () {
+      var off = new URLSearchParams(location.search).get('motion') === 'off'
+        || matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (off) document.documentElement.classList.add('motion-off');
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip" href="#map">Skip to map</a>
+  <header class="bar">
+    <a class="brand" href="#" aria-label="JL, home">JL</a>
+    <nav class="paths" aria-label="Districts">
+      <a href="#work"><span aria-hidden="true">▲</span> Work</a>
+      <a href="#now"><span aria-hidden="true">◆</span> Now</a>
+      <a href="#about"><span aria-hidden="true">●</span> About</a>
+      <a href="#contact"><span aria-hidden="true">■</span> Contact</a>
+    </nav>
+    <a class="text" id="index-link" href="#index">Index</a>
+    <div class="zoom" aria-label="Zoom">
+      <button type="button" id="zoom-out" aria-label="Zoom out">−</button>
+      <span id="zoom-read">100%</span>
+      <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+      <button type="button" id="home" aria-label="Home">⌂</button>
+    </div>
+  </header>
+  <div class="viewport" id="map">
+    <div class="dots" id="dots"></div>
+    <div class="world" id="world"></div>
+  </div>
+  <p class="hint" id="hint">Scroll pans. Hold Ctrl and scroll to zoom.</p>
+  <div class="minimap" id="minimap" aria-hidden="true"></div>
+  <div class="overlay" id="overlay" hidden></div>
+  <article class="index-view" id="index" hidden></article>
+  <script type="module" src="./assets/app.js"></script>
+</body>
+</html>
