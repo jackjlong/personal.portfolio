@@ -11,7 +11,7 @@ const motionOff = document.documentElement.classList.contains('motion-off');
 const byId = Object.fromEntries(projects.map((p) => [p.id, p]));
 
 const spots = {
-  home: { x: 0, y: 0, w: 320, h: 230 },
+  home: { x: 0, y: 0, w: 340, h: 268 },
   now: { x: 0, y: -250, w: 270, h: 180 },
   about: { x: -360, y: 16, w: 270, h: 190 },
   work: { x: 390, y: 0, w: 420, h: 260 },
@@ -37,10 +37,16 @@ const sheets = projects.map((p, i) => {
 }).join('');
 
 world.innerHTML = `
-  <article class="plate home" data-x="0" data-y="0" data-w="320" data-h="230" id="home-card">
+  <article class="plate home" data-x="0" data-y="0" data-w="340" data-h="268" id="home-card">
     <div class="mark">JL</div>
-    <h1>${esc(sections.now)}</h1>
-    <span class="draft">draft copy</span>
+    <h1>Jack Long</h1>
+    <p class="identity">Two private tools that live in the browser.</p>
+    <ul class="legend">
+      <li class="leg-work"><span aria-hidden="true">▲</span> Work</li>
+      <li class="leg-now"><span aria-hidden="true">◆</span> Now</li>
+      <li class="leg-about"><span aria-hidden="true">●</span> About</li>
+      <li class="leg-contact"><span aria-hidden="true">■</span> Contact</li>
+    </ul>
   </article>
   <article class="plate district now" data-x="${spots.now.x}" data-y="${spots.now.y}" data-w="${spots.now.w}" data-h="${spots.now.h}">
     <a class="district-link" href="#now"><span aria-hidden="true">◆</span> Now</a>
@@ -73,6 +79,7 @@ function place() {
     el.style.top = `${+el.dataset.y - h / 2}px`;
     if (el.dataset.w) el.style.width = `${w}px`;
     if (el.classList.contains('plate')) el.style.minHeight = `${+el.dataset.h}px`;
+    if (el.id === 'detail-plate') el.style.height = `${+el.dataset.h}px`;
   });
 }
 
@@ -82,6 +89,8 @@ let armed = false;
 function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
 
 function apply() {
+  const tilt = motionOff ? 0 : Math.min(9, 3.5 + Math.max(0, cam.s - 0.85) * 5);
+  world.style.setProperty('--tilt', `${tilt.toFixed(2)}deg`);
   world.style.transform = `translate(${cam.x}px, ${cam.y}px) scale(${cam.s})`;
   dots.style.transform = `translate(${cam.x * 0.6}px, ${cam.y * 0.6}px)`;
   zoomRead.textContent = `${Math.round(cam.s * 100)}%`;
@@ -163,22 +172,35 @@ function drawMinimap() {
 
 function projectHTML(project) {
   return `<article class="reading">
-    <p><a class="back" href="#work">Back to work</a></p>
-    <p class="district-link"><span aria-hidden="true">▲</span> Work</p>
-    <h2 id="panel-title" tabindex="-1">${esc(project.name)}</h2>
-    <p class="lede">${esc(project.description)}</p>
-    <div class="actions">
-      <a href="${esc(project.live)}">Live</a>
-      <a href="${esc(project.source)}">Source</a>
-      <a href="${esc(project.live)}" target="_blank" rel="noopener">Open in new tab</a>
-      <button type="button" data-run="${esc(project.id)}">Run it here</button>
+    <div class="copy">
+      <p><a class="back" href="#work">Back</a></p>
+      <p class="district-link"><span aria-hidden="true">▲</span> Work</p>
+      <h2>${esc(project.name)}</h2>
+      <p class="lede">${esc(project.description)}</p>
+      <div class="actions">
+        <button type="button" class="primary" data-run="${esc(project.id)}">Run it here</button>
+        <a class="secondary" href="${esc(project.live)}" target="_blank" rel="noopener">Live site</a>
+        <a class="quiet" href="${esc(project.source)}">Source</a>
+      </div>
+      <p class="fine">This is the real app. Anything you type stays in your browser.</p>
     </div>
-    <p class="fine">This is the real app. Anything you type stays in your browser.</p>
     <div class="screen">
       <p class="screen-empty">Not loaded yet. Run it here when you want the real app.</p>
       <iframe title="${esc(project.name)}, running live" loading="lazy" hidden></iframe>
     </div>
   </article>`;
+}
+
+function detailPlate() {
+  let plate = document.querySelector('#detail-plate');
+  if (!plate) {
+    plate = document.createElement('article');
+    plate.id = 'detail-plate';
+    plate.className = 'plate detail-plate';
+    plate.hidden = true;
+    world.appendChild(plate);
+  }
+  return plate;
 }
 
 function indexHTML() {
@@ -200,14 +222,24 @@ function indexHTML() {
   </div>`;
 }
 
-let booted = false;
-
-function sync(fromUser) {
+function sync() {
   const current = route();
   indexView.hidden = current !== 'index';
   const project = current.startsWith('work/') ? byId[current.slice(5)] : null;
-  overlay.hidden = !project;
-  overlay.innerHTML = project ? projectHTML(project) : '';
+  const detail = detailPlate();
+  overlay.hidden = true;
+  if (project) {
+    detail.hidden = false;
+    detail.dataset.x = '700';
+    detail.dataset.y = '24';
+    detail.dataset.w = '640';
+    detail.dataset.h = '420';
+    detail.innerHTML = projectHTML(project);
+  } else {
+    detail.hidden = true;
+    detail.innerHTML = '';
+  }
+  place();
   document.querySelectorAll('.paths a').forEach((a) => {
     const href = a.getAttribute('href').slice(1);
     const on = current === href || current.startsWith(`${href}/`);
@@ -217,25 +249,20 @@ function sync(fromUser) {
   if (current === 'index') {
     /* leave the camera */
   } else if (project) {
-    const sheet = document.getElementById(`sheet-${project.id}`);
-    frameBox(+sheet.dataset.x - 90, +sheet.dataset.y - 70, 180, 140, 40, 2.4);
-  } else if (spots[current]) frameSpot(current, 1.7);
+    frameBox(700 - 320, 24 - 210, 640, 420, 48, 1.55);
+  } else if (spots[current]) frameSpot(current, 1.55);
   else frameHome();
+  document.body.classList.toggle('project-open', Boolean(project));
   document.title = (current ? `${current} — ` : '') + 'Atlas — Jack Long';
-  if (booted && fromUser !== false && project) overlay.querySelector('#panel-title')?.focus();
-  booted = true;
 }
 
-overlay.addEventListener('click', (e) => {
+world.addEventListener('click', (e) => {
   const run = e.target.closest('[data-run]');
-  if (!run) {
-    if (e.target === overlay) location.hash = 'work';
-    return;
-  }
+  if (!run) return;
   const project = byId[run.dataset.run];
-  const frame = overlay.querySelector('iframe');
-  const empty = overlay.querySelector('.screen-empty');
-  if (!frame || frame.getAttribute('src')) return;
+  const frame = world.querySelector('#detail-plate iframe');
+  const empty = world.querySelector('#detail-plate .screen-empty');
+  if (!project || !frame || frame.getAttribute('src')) return;
   frame.hidden = false;
   if (empty) empty.hidden = true;
   frame.src = project.live;
@@ -322,9 +349,14 @@ addEventListener('keydown', (e) => {
 });
 
 addEventListener('focusin', (e) => {
+  if (route().startsWith('work/')) return;
   const node = e.target.closest?.('[data-x]');
-  if (!node || node.closest('.index-view, .overlay, .bar')) return;
-  frameBox(+node.dataset.x - (+node.dataset.w || 160) / 2, +node.dataset.y - (+node.dataset.h || 120) / 2, +node.dataset.w || 200, +node.dataset.h || 140, 64, node.classList.contains('sheet') ? 2.2 : 1.55);
+  if (!node || node.id === 'detail-plate' || node.closest('.index-view, .overlay, .bar')) return;
+  if (node.classList.contains('sheet')) {
+    frameSpot('work', 1.55);
+    return;
+  }
+  frameBox(+node.dataset.x - (+node.dataset.w || 160) / 2, +node.dataset.y - (+node.dataset.h || 120) / 2, +node.dataset.w || 200, +node.dataset.h || 140, 64, 1.55);
 });
 
 addEventListener('hashchange', () => sync(true));
