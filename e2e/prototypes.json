@@ -3,6 +3,7 @@
     { "name": "workbench", "path": "/prototypes/workbench/", "expectReady": true, "hooks": {} },
     { "name": "atlas", "path": "/prototypes/atlas/", "expectReady": true, "hooks": {} },
     { "name": "color-fields", "path": "/prototypes/color-fields/", "expectReady": true, "hooks": {} },
-    { "name": "departures", "path": "/prototypes/departures/", "expectReady": true, "hooks": {} }
+    { "name": "departures", "path": "/prototypes/departures/", "expectReady": true, "hooks": {} },
+    { "name": "desktop", "path": "/prototypes/desktop/", "expectReady": true, "hooks": {} }
   ]
 }
