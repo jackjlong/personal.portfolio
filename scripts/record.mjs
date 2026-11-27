@@ -1,8 +1,8 @@
 // npm run record [name ...]: a short webm walkthrough of every ready prototype in e2e/prototypes.json
 // saves shots/<name>/walkthrough.webm and shots/<name>/02b-hover.png
 import { mkdirSync, renameSync, rmSync } from 'node:fs';
-import { spawn } from 'node:child_process';
 import { chromium } from '@playwright/test';
+import { startServer } from './serve.mjs';
 import { prototypes, projects, hooksFor, locate, reveal, tabTo } from '../e2e/hooks.js';
 
 const viewport = { width: 1440, height: 900 };
@@ -13,13 +13,7 @@ if (!ready.length) {
   process.exit(0);
 }
 
-const port = 5176;
-const base = `http://localhost:${port}`;
-const server = spawn('npx', ['http-server', '.', '-p', String(port), '-c-1', '-s'], { stdio: 'ignore' });
-for (let i = 0; ; i++) {
-  try { await fetch(base); break; } catch { if (i > 50) throw new Error('static server never started'); }
-  await new Promise((r) => setTimeout(r, 200));
-}
+const { base, stop } = await startServer();
 
 const browser = await chromium.launch({ channel: 'chrome' });
 const pause = (page, ms = 1200) => page.waitForTimeout(ms);
@@ -87,6 +81,6 @@ for (const proto of ready) {
 }
 
 await browser.close();
-server.kill();
+stop();
 console.log(failed ? `done, ${failed} steps skipped` : 'done');
 process.exit(failed ? 1 : 0);
