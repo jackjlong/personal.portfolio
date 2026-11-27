@@ -35,11 +35,7 @@ function objectBody(item) {
   const project = byId[item.id];
   if (item.kind === 'timecard') {
     const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-    const punches = [
-      ['9:02', '5:11'], ['8:54', '4:48'], ['9:16', '6:02'], ['9:00', '5:30'],
-      ['8:47', '4:55'], ['10:12', '3:40'], ['—', '—'],
-    ];
-    const cols = days.map((day, i) => `<span class="day"><b>${day}</b><span>in ${punches[i][0]}</span><span>out ${punches[i][1]}</span></span>`).join('');
+    const cols = days.map((day) => `<span class="day"><b>${day}</b><span>in —</span><span>out —</span></span>`).join('');
     return `<span class="notch" aria-hidden="true"></span>
       <span class="name">${esc(project.name)}</span>
       <span class="blurb">${esc(project.description)}</span>
@@ -143,23 +139,27 @@ function sheetHTML(current) {
     return `<article class="sheet">${back}${projectSheet(project)}</article>`;
   }
   if (current === 'work') return `<article class="sheet">${back}${workOverview()}</article>`;
+  const chips = `<p class="chip-label">what I'm working on</p>
+      <div class="chips">${projects.map((p) => `<a class="chip" href="#work/${esc(p.id)}">${esc(p.name)}</a>`).join('')}</div>`;
   if (current === 'now') {
     return `<article class="sheet sheet-plain">${back}
-      <div class="plain">
+      <div class="plain note-page">
         <p class="tab now"><span aria-hidden="true">◆</span> now</p>
-        <h2 id="panel-title" tabindex="-1">now</h2>
+        <h2 id="panel-title" tabindex="-1">this week</h2>
         <p class="draft">draft copy</p>
         <p class="lede big">${esc(sections.now)}</p>
+        ${chips}
       </div>
     </article>`;
   }
   if (current === 'about') {
     return `<article class="sheet sheet-plain">${back}
-      <div class="plain">
+      <div class="plain note-page">
         <p class="tab about"><span aria-hidden="true">●</span> about</p>
         <h2 id="panel-title" tabindex="-1">about</h2>
         <p class="draft">draft copy</p>
         <p class="lede big">${esc(sections.about)}</p>
+        ${chips}
       </div>
     </article>`;
   }
@@ -168,10 +168,10 @@ function sheetHTML(current) {
       <div class="plain">
         <p class="tab contact"><span aria-hidden="true">■</span> contact</p>
         <h2 id="panel-title" tabindex="-1">contact</h2>
-        <div class="stamps-open">
-          <a class="stamp" href="${esc(contact.x)}"><span>X</span>X</a>
-          <a class="stamp" href="mailto:${esc(contact.email)}"><span>email</span>${esc(contact.email)}</a>
-          <a class="stamp" href="${esc(contact.linkedin)}"><span>LinkedIn</span>LinkedIn</a>
+        <div class="contact-links">
+          <a href="${esc(contact.x)}"><span aria-hidden="true">x</span> X</a>
+          <a href="mailto:${esc(contact.email)}"><span aria-hidden="true">@</span> ${esc(contact.email)}</a>
+          <a href="${esc(contact.linkedin)}"><span aria-hidden="true">in</span> LinkedIn</a>
         </div>
       </div>
     </article>`;
@@ -211,7 +211,7 @@ function anchorId(current) {
 }
 
 function flyFrom(card, sheet) {
-  const rest = 'rotateX(16deg)';
+  const rest = 'rotateX(0deg)';
   if (!sheet) return;
   if (motionOff || !card) {
     sheet.style.transition = 'none';
@@ -252,13 +252,13 @@ function bindTilt(el) {
     const py = (clientY - (r.top + r.height / 2)) / (r.height / 2);
     const ry = Math.max(-6, Math.min(6, px * 6));
     const rx = Math.max(-6, Math.min(6, -py * 6));
-    el.style.transform = `rotateZ(var(--rot)) translateZ(42px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+    el.style.transform = `rotateZ(var(--rot)) translateZ(90px) rotateX(${rx}deg) rotateY(${ry}deg)`;
     seatEl.classList.add('lifted');
   };
   el.addEventListener('pointermove', (e) => tilt(e.clientX, e.clientY));
   el.addEventListener('pointerleave', rest);
   el.addEventListener('focus', () => {
-    el.style.transform = 'rotateZ(var(--rot)) translateZ(42px) rotateX(4deg)';
+    el.style.transform = 'rotateZ(var(--rot)) translateZ(64px) rotateX(4deg)';
     seatEl.classList.add('lifted');
   });
   el.addEventListener('blur', rest);
@@ -268,6 +268,9 @@ scene.querySelectorAll('.object').forEach(bindTilt);
 
 let booted = false;
 let returnFocus = null;
+let fromKeyboard = false;
+addEventListener('keydown', () => { fromKeyboard = true; }, true);
+addEventListener('pointerdown', () => { fromKeyboard = false; }, true);
 
 function sync(fromUser) {
   const current = route();
@@ -285,7 +288,7 @@ function sync(fromUser) {
   });
   document.title = (current ? `${current} — ` : '') + 'Workbench — Jack Long';
   if (open) flyFrom(document.getElementById(anchorId(current)), panel.querySelector('.sheet'));
-  if (booted && fromUser !== false && open) panel.querySelector('.sheet-bar a')?.focus();
+  if (booted && fromUser !== false && open && fromKeyboard) panel.querySelector('.sheet-bar a')?.focus();
   booted = true;
 }
 
