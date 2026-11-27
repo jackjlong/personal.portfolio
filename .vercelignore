@@ -8,3 +8,5 @@ package-lock.json
 playwright.config.js
 BRIEF.md
 README.md
+.env*
+.vercel

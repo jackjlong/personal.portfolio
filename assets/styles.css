@@ -254,6 +254,8 @@ html:not(.motion-off) .dots.armed { transition: transform 0.55s cubic-bezier(0.1
   margin: 10px 0 0;
 }
 .draft {
+  align-self: flex-start;
+  width: max-content;
   display: inline-block;
   margin-top: 10px;
   border: 1.5px dashed currentColor;
