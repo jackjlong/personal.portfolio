@@ -34,15 +34,27 @@ function route() {
 function objectBody(item) {
   const project = byId[item.id];
   if (item.kind === 'timecard') {
-    return `<span class="name">${esc(project.name)}</span>
-      <span class="label">time card</span>
-      <span class="rules" aria-hidden="true"></span>
-      <span class="punches" aria-hidden="true"><i></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i></span>`;
+    const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+    const punches = [
+      ['9:02', '5:11'], ['8:54', '4:48'], ['9:16', '6:02'], ['9:00', '5:30'],
+      ['8:47', '4:55'], ['10:12', '3:40'], ['—', '—'],
+    ];
+    const cols = days.map((day, i) => `<span class="day"><b>${day}</b><span>in ${punches[i][0]}</span><span>out ${punches[i][1]}</span></span>`).join('');
+    return `<span class="notch" aria-hidden="true"></span>
+      <span class="name">${esc(project.name)}</span>
+      <span class="blurb">${esc(project.description)}</span>
+      <span class="week" aria-hidden="true">${cols}</span>`;
   }
   if (item.kind === 'radar') {
     return `<span class="name">${esc(project.name)}</span>
-      <span class="label">scope</span>
-      <span class="dial" aria-hidden="true"><span class="sweep"></span><span class="needle"></span></span>`;
+      <span class="blurb">${esc(project.description)}</span>
+      <span class="dial" aria-hidden="true">
+        <span class="sweep"></span>
+        <span class="ring"></span>
+        <span class="blip" style="--a:28deg;--d:72px">upcoming</span>
+        <span class="blip" style="--a:132deg;--d:88px">average</span>
+        <span class="blip" style="--a:220deg;--d:58px">charges</span>
+      </span>`;
   }
   if (item.kind === 'note') {
     return `<span class="draft">draft copy</span>
@@ -78,7 +90,7 @@ function seat(item) {
     <span class="shade ambient" aria-hidden="true"></span>
     <span class="shade contact" aria-hidden="true"></span>
     <a class="object" id="obj-${item.id}" href="#${item.route}">
-      <span class="tab"><span aria-hidden="true">${item.glyph}</span> ${item.word}</span>
+      <span class="tab ${item.kind === 'radar' || item.kind === 'timecard' ? 'work' : item.kind === 'note' ? 'now' : item.kind === 'badge' ? 'about' : 'contact'}"><span aria-hidden="true">${item.glyph}</span> ${item.word}</span>
       ${objectBody(item)}
     </a>
   </div>`;
@@ -94,16 +106,17 @@ function actions(project) {
 }
 
 function projectSheet(project) {
+  const poster = `./posters/${project.id}.png`;
   return `<div class="layout">
     <div class="copy">
-      <p class="tab"><span aria-hidden="true">▲</span> work</p>
+      <p class="tab work"><span aria-hidden="true">▲</span> work</p>
       <h2 id="panel-title" tabindex="-1">${esc(project.name)}</h2>
       <p class="lede">${esc(project.description)}</p>
       ${actions(project)}
     </div>
     <div class="preview">
       <div class="screen">
-        <p class="screen-empty">not loaded yet.</p>
+        <img class="poster" src="${poster}" alt="">
         <iframe title="${esc(project.name)}, running live" loading="lazy" hidden></iframe>
       </div>
     </div>
@@ -113,7 +126,7 @@ function projectSheet(project) {
 function workOverview() {
   const cards = projects.map((p) => `
     <a class="mini" href="#work/${esc(p.id)}">
-      <span class="tab"><span aria-hidden="true">▲</span> work</span>
+      <span class="tab work"><span aria-hidden="true">▲</span> work</span>
       <span class="name">${esc(p.name)}</span>
       <span class="lede">${esc(p.description)}</span>
     </a>`).join('');
@@ -131,29 +144,35 @@ function sheetHTML(current) {
   }
   if (current === 'work') return `<article class="sheet">${back}${workOverview()}</article>`;
   if (current === 'now') {
-    return `<article class="sheet">${back}
-      <p class="tab"><span aria-hidden="true">◆</span> now</p>
-      <h2 id="panel-title" tabindex="-1">now</h2>
-      <p class="draft">draft copy</p>
-      <p class="lede">${esc(sections.now)}</p>
+    return `<article class="sheet sheet-plain">${back}
+      <div class="plain">
+        <p class="tab now"><span aria-hidden="true">◆</span> now</p>
+        <h2 id="panel-title" tabindex="-1">now</h2>
+        <p class="draft">draft copy</p>
+        <p class="lede big">${esc(sections.now)}</p>
+      </div>
     </article>`;
   }
   if (current === 'about') {
-    return `<article class="sheet">${back}
-      <p class="tab"><span aria-hidden="true">●</span> about</p>
-      <h2 id="panel-title" tabindex="-1">about</h2>
-      <p class="draft">draft copy</p>
-      <p class="lede">${esc(sections.about)}</p>
+    return `<article class="sheet sheet-plain">${back}
+      <div class="plain">
+        <p class="tab about"><span aria-hidden="true">●</span> about</p>
+        <h2 id="panel-title" tabindex="-1">about</h2>
+        <p class="draft">draft copy</p>
+        <p class="lede big">${esc(sections.about)}</p>
+      </div>
     </article>`;
   }
   if (current === 'contact') {
-    return `<article class="sheet">${back}
-      <p class="tab"><span aria-hidden="true">■</span> contact</p>
-      <h2 id="panel-title" tabindex="-1">contact</h2>
-      <div class="stamps-open">
-        <a class="stamp" href="${esc(contact.x)}"><span>X</span>X</a>
-        <a class="stamp" href="mailto:${esc(contact.email)}"><span>email</span>${esc(contact.email)}</a>
-        <a class="stamp" href="${esc(contact.linkedin)}"><span>LinkedIn</span>LinkedIn</a>
+    return `<article class="sheet sheet-plain">${back}
+      <div class="plain">
+        <p class="tab contact"><span aria-hidden="true">■</span> contact</p>
+        <h2 id="panel-title" tabindex="-1">contact</h2>
+        <div class="stamps-open">
+          <a class="stamp" href="${esc(contact.x)}"><span>X</span>X</a>
+          <a class="stamp" href="mailto:${esc(contact.email)}"><span>email</span>${esc(contact.email)}</a>
+          <a class="stamp" href="${esc(contact.linkedin)}"><span>LinkedIn</span>LinkedIn</a>
+        </div>
       </div>
     </article>`;
   }
@@ -192,21 +211,24 @@ function anchorId(current) {
 }
 
 function flyFrom(card, sheet) {
-  if (motionOff || !card || !sheet) {
-    sheet.style.transform = 'none';
+  const rest = 'rotateX(16deg)';
+  if (!sheet) return;
+  if (motionOff || !card) {
+    sheet.style.transition = 'none';
+    sheet.style.transform = rest;
     return;
   }
   const from = card.getBoundingClientRect();
   const to = sheet.getBoundingClientRect();
   const dx = from.left + from.width / 2 - (to.left + to.width / 2);
   const dy = from.top + from.height / 2 - (to.top + to.height / 2);
-  const s = Math.max(0.22, Math.min(from.width / to.width, from.height / to.height));
+  const s = Math.max(0.2, Math.min(from.width / to.width, from.height / to.height));
   sheet.style.transition = 'none';
-  sheet.style.transform = `translate(${dx}px, ${dy}px) scale(${s})`;
+  sheet.style.transform = `translate(${dx}px, ${dy}px) scale(${s}) rotateX(50deg)`;
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       sheet.style.transition = 'transform .62s cubic-bezier(.16, .84, .24, 1)';
-      sheet.style.transform = 'translate(0, 0) scale(1)';
+      sheet.style.transform = rest;
     });
   });
 }
@@ -254,6 +276,7 @@ function sync(fromUser) {
   const open = Boolean(html);
   panel.hidden = !open;
   panel.innerHTML = html;
+  document.querySelector('.room').classList.toggle('dim', open);
   document.querySelectorAll('.paths a').forEach((a) => {
     const href = a.getAttribute('href').slice(1);
     const on = current === href || current.startsWith(`${href}/`);
@@ -271,10 +294,10 @@ panel.addEventListener('click', (e) => {
   if (!run) return;
   const project = byId[run.dataset.run];
   const frame = panel.querySelector('iframe');
-  const empty = panel.querySelector('.screen-empty');
+  const poster = panel.querySelector('.poster');
   if (!project || !frame || frame.getAttribute('src')) return;
   frame.hidden = false;
-  if (empty) empty.hidden = true;
+  if (poster) poster.hidden = true;
   frame.src = project.live;
 });
 
