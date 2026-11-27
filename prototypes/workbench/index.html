@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Workbench — Jack Long</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23F6F1E7'/%3E%3Ctext x='4' y='22' font-size='14' font-family='serif' fill='%23121212'%3EJL%3C/text%3E%3C/svg%3E">
+  <!-- proposal: the JL mark and the desk-edge line are sketches. now/about copy is draft. -->
+  <link rel="stylesheet" href="../../shared/base.css">
+  <link rel="stylesheet" href="./styles.css">
+  <script>
+    (function () {
+      var off = new URLSearchParams(location.search).get('motion') === 'off'
+        || matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (off) document.documentElement.classList.add('motion-off');
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip" href="#desk">Skip to desk</a>
+  <div class="room" id="room">
+    <div class="pit" id="desk">
+      <div class="scene" id="scene"></div>
+    </div>
+    <p class="lip"><span>stuff I've built and what I'm up to</span></p>
+    <header class="top">
+      <a class="brand" href="#" aria-label="JL, back to the desk">JL</a>
+      <nav class="paths" aria-label="Paths">
+        <a href="#work"><span aria-hidden="true">▲</span> Work</a>
+        <a href="#now"><span aria-hidden="true">◆</span> Now</a>
+        <a href="#about"><span aria-hidden="true">●</span> About</a>
+        <a href="#contact"><span aria-hidden="true">■</span> Contact</a>
+      </nav>
+      <a class="index-link" id="index-link" href="#index"><span aria-hidden="true">☰</span> Index</a>
+      <a class="launcher" href="../../">All concepts</a>
+    </header>
+  </div>
+  <div class="scrim" id="panel" hidden></div>
+  <article class="index-view" id="index" hidden></article>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
