@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Desk map — Jack Long</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23C4A06A'/%3E%3Ctext x='4' y='22' font-size='14' font-family='serif' fill='%23161212'%3EJL%3C/text%3E%3C/svg%3E">
+  <!-- proposal: JL mark is a sketch. now/about lines and project descriptions are draft copy. -->
+  <link rel="stylesheet" href="../../shared/base.css">
+  <link rel="stylesheet" href="./styles.css">
+  <script>
+    (function () {
+      var off = new URLSearchParams(location.search).get('motion') === 'off'
+        || matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (off) document.documentElement.classList.add('motion-off');
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip" href="#scene">Skip to desk</a>
+  <header class="top">
+    <a class="brand" href="#" aria-label="JL, back to the desk">JL</a>
+    <nav class="paths" aria-label="Paths">
+      <a href="#work"><span aria-hidden="true">▲</span> Work</a>
+      <a href="#now"><span aria-hidden="true">◆</span> Now</a>
+      <a href="#about"><span aria-hidden="true">●</span> About</a>
+      <a href="#contact"><span aria-hidden="true">■</span> Contact</a>
+    </nav>
+    <a class="back" id="back" href="#" hidden>Back</a>
+    <a class="index-link" id="index-link" href="#index">Index</a>
+    <a class="launcher" href="../../">All concepts</a>
+  </header>
+  <div class="room">
+    <div class="light" aria-hidden="true"></div>
+    <div class="stage" id="stage">
+      <div class="floor-shadow" aria-hidden="true"></div>
+      <div class="rig" id="rig">
+        <div class="desk" id="scene" tabindex="-1"></div>
+      </div>
+    </div>
+    <p class="hud" id="hud" aria-hidden="true">100%</p>
+    <p class="hint">Scroll or +/− dollies in. Click a plate.</p>
+  </div>
+  <article class="index-view" id="index" hidden></article>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

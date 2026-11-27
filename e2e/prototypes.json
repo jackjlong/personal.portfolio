@@ -4,6 +4,7 @@
     { "name": "atlas", "path": "/prototypes/atlas/", "expectReady": true, "hooks": {} },
     { "name": "color-fields", "path": "/prototypes/color-fields/", "expectReady": true, "hooks": {} },
     { "name": "departures", "path": "/prototypes/departures/", "expectReady": true, "hooks": {} },
-    { "name": "desktop", "path": "/prototypes/desktop/", "expectReady": true, "hooks": {} }
+    { "name": "desktop", "path": "/prototypes/desktop/", "expectReady": true, "hooks": {} },
+    { "name": "blend-desk-map", "path": "/prototypes/blend-desk-map/", "expectReady": true, "hooks": {} }
   ]
 }
