@@ -64,8 +64,11 @@ function objectBody(item) {
   }
   return `<span class="flap" aria-hidden="true"></span>
     <span class="who">jack long</span>
-    <span class="stamps" aria-hidden="true"><i>X</i><i>@</i><i>in</i></span>
-    <span class="label">envelope</span>`;
+    <span class="card-links" aria-hidden="true">
+      <i><b>x</b> X</i>
+      <i><b>@</b> email</i>
+      <i><b>in</b> LinkedIn</i>
+    </span>`;
 }
 
 scene.innerHTML = `
@@ -139,41 +142,54 @@ function sheetHTML(current) {
     return `<article class="sheet">${back}${projectSheet(project)}</article>`;
   }
   if (current === 'work') return `<article class="sheet">${back}${workOverview()}</article>`;
-  const chips = `<p class="chip-label">what I'm working on</p>
-      <div class="chips">${projects.map((p) => `<a class="chip" href="#work/${esc(p.id)}">${esc(p.name)}</a>`).join('')}</div>`;
+  const aside = `<aside class="note-side">
+        <p class="chip-label">what I'm working on</p>
+        ${projects.map((p) => `<a class="work-card" href="#work/${esc(p.id)}">
+          <span class="tab work"><span aria-hidden="true">▲</span> work</span>
+          <span class="name">${esc(p.name)}</span>
+          <span class="blurb">${esc(p.description)}</span>
+        </a>`).join('')}
+      </aside>`;
   if (current === 'now') {
-    return `<article class="sheet sheet-plain">${back}
-      <div class="plain note-page">
-        <p class="tab now"><span aria-hidden="true">◆</span> now</p>
-        <h2 id="panel-title" tabindex="-1">this week</h2>
-        <p class="draft">draft copy</p>
-        <p class="lede big">${esc(sections.now)}</p>
-        ${chips}
+    return `<article class="sheet sheet-note">${back}
+      <div class="note-grid">
+        <div class="note-page">
+          <p class="tab now"><span aria-hidden="true">◆</span> now</p>
+          <h2 id="panel-title" tabindex="-1">this week</h2>
+          <p class="draft">draft copy</p>
+          <p class="lede big">${esc(sections.now)}</p>
+        </div>
+        ${aside}
       </div>
     </article>`;
   }
   if (current === 'about') {
-    return `<article class="sheet sheet-plain">${back}
-      <div class="plain note-page">
-        <p class="tab about"><span aria-hidden="true">●</span> about</p>
-        <h2 id="panel-title" tabindex="-1">about</h2>
-        <p class="draft">draft copy</p>
-        <p class="lede big">${esc(sections.about)}</p>
-        ${chips}
+    return `<article class="sheet sheet-note">${back}
+      <div class="note-grid">
+        <div class="note-page">
+          <p class="tab about"><span aria-hidden="true">●</span> about</p>
+          <h2 id="panel-title" tabindex="-1">about</h2>
+          <p class="draft">draft copy</p>
+          <p class="lede big">${esc(sections.about)}</p>
+        </div>
+        ${aside}
       </div>
     </article>`;
   }
   if (current === 'contact') {
-    return `<article class="sheet sheet-plain">${back}
-      <div class="plain">
-        <p class="tab contact"><span aria-hidden="true">■</span> contact</p>
-        <h2 id="panel-title" tabindex="-1">contact</h2>
-        <div class="contact-links">
-          <a href="${esc(contact.x)}"><span aria-hidden="true">x</span> X</a>
-          <a href="mailto:${esc(contact.email)}"><span aria-hidden="true">@</span> ${esc(contact.email)}</a>
-          <a href="${esc(contact.linkedin)}"><span aria-hidden="true">in</span> LinkedIn</a>
-        </div>
+    return `<article class="sheet sheet-letter">${back}
+      <p class="tab contact"><span aria-hidden="true">■</span> contact</p>
+      <p class="who">jack long</p>
+      <h2 id="panel-title" tabindex="-1">write</h2>
+      <div class="contact-links">
+        <a href="${esc(contact.x)}"><span aria-hidden="true">x</span> X</a>
+        <a href="mailto:${esc(contact.email)}"><span aria-hidden="true">@</span> email</a>
+        <a href="${esc(contact.linkedin)}"><span aria-hidden="true">in</span> LinkedIn</a>
       </div>
+      <p class="email-line">
+        <span>${esc(contact.email)}</span>
+        <button type="button" data-copy="${esc(contact.email)}">copy</button>
+      </p>
     </article>`;
   }
   return '';
@@ -293,6 +309,12 @@ function sync(fromUser) {
 }
 
 panel.addEventListener('click', (e) => {
+  const copy = e.target.closest('[data-copy]');
+  if (copy) {
+    const done = () => { copy.textContent = 'copied'; };
+    navigator.clipboard?.writeText(copy.dataset.copy).then(done).catch(done);
+    return;
+  }
   const run = e.target.closest('[data-run]');
   if (!run) return;
   const project = byId[run.dataset.run];

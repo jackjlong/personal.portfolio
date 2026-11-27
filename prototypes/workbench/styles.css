@@ -101,10 +101,11 @@ h1, h2, .name, .who, .lede, .note-line { font-family: "Fraunces", Georgia, serif
   overflow: hidden;
 }
 .scene {
-  width: min(1100px, 76vw);
-  height: 92%;
-  transform: rotateX(48deg);
-  transform-origin: center 50%;
+  width: min(980px, 68vw);
+  height: 128%;
+  margin-top: -8%;
+  transform: rotateX(46deg);
+  transform-origin: center 42%;
   transform-style: preserve-3d;
   display: flex;
   flex-direction: column;
@@ -357,17 +358,33 @@ html:not(.motion-off) .sweep { animation: sweep 7s linear infinite; }
   background: linear-gradient(180deg, #f3e7d4, #e4d2b6);
   clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
-.envelope .tab, .envelope .who, .envelope .stamps, .envelope .label { position: relative; z-index: 1; }
+.envelope .tab, .envelope .who, .envelope .card-links { position: relative; z-index: 1; }
 .envelope .who { margin-top: auto; font-size: 1.4rem; }
-.stamps { display: flex; gap: 8px; }
-.stamps i {
-  width: 40px; height: 46px;
-  display: grid; place-items: center;
-  background: var(--yellow);
-  border: 1.5px dashed var(--ink);
+.card-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; position: relative; z-index: 1; }
+.card-links i {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1.5px solid var(--ink);
+  background: var(--cream);
   font-style: normal;
+  font-size: 0.78rem;
+}
+.card-links b {
+  display: grid;
+  place-items: center;
+  width: 1.3em;
+  height: 1.3em;
+  background: var(--yellow);
+  font-weight: 600;
 }
 
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
 html.motion-off .object,
 html.motion-off .shade { transition: none; }
 html.motion-off .sweep { animation: none !important; }
@@ -447,7 +464,49 @@ html.motion-off *::after {
   border: 0;
   background: white;
 }
-.sheet-plain { height: min(620px, calc(100vh - 88px)); }
+.sheet-note { height: auto; width: min(980px, calc(100vw - 72px)); }
+.note-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 20px;
+  align-items: stretch;
+}
+.note-side { display: flex; flex-direction: column; gap: 10px; }
+.work-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  min-height: 120px;
+  background: var(--paper);
+  color: var(--ink);
+  text-decoration: none;
+  border: 1px solid rgba(18, 18, 18, 0.28);
+}
+.work-card:hover { background: #fff; }
+.work-card .name { font-size: 1.45rem; }
+.sheet-letter { height: auto; width: min(720px, calc(100vw - 80px)); }
+.sheet-letter { width: min(720px, calc(100vw - 80px)); }
+.sheet-letter .who { font-size: 1.1rem; margin: 10px 0 0; }
+.sheet-letter h2 { margin-top: 0; }
+.email-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 4px;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.95rem;
+}
+.email-line button {
+  border: 1.5px solid var(--ink);
+  background: var(--cream);
+  color: var(--ink);
+  padding: 6px 10px;
+  font-family: "Barlow", sans-serif;
+  cursor: pointer;
+}
+.email-line button:hover { background: var(--ink); color: var(--cream); }
 .note-page {
   background:
     linear-gradient(#fbf7f0, #fbf7f0) 0 0 / 100% 42px content-box,
@@ -475,16 +534,17 @@ html.motion-off *::after {
   font-size: 1.15rem;
 }
 .chip:hover { background: var(--ink); color: var(--cream); }
-.contact-links { display: flex; flex-flow: row wrap; align-items: center; gap: 12px; margin-top: 28px; }
+.contact-links { display: flex; flex-flow: row wrap; align-items: center; gap: 12px; margin-top: 8px; }
 .contact-links a {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px;
+  padding: 14px 18px;
   border: 1.5px solid var(--ink);
   text-decoration: none;
   background: var(--cream);
   color: var(--ink);
+  font-size: 1.15rem;
 }
 .contact-links a span {
   display: grid;
@@ -552,7 +612,7 @@ html.motion-off *::after {
 .index-view h1 { font-size: 2.6rem; letter-spacing: -0.03em; }
 
 @media (max-width: 1320px), (max-height: 820px) {
-  .scene { width: min(1040px, 80vw); height: 96%; transform: rotateX(48deg); padding: 12px 14px 16px; gap: 10px; }
+  .scene { width: min(900px, 70vw); height: 124%; margin-top: -2%; transform: rotateX(46deg); padding: 12px 14px 16px; gap: 10px; }
   .object { min-height: 0; }
   .rest .object { min-height: 0; }
   .day { font-size: 0.55rem; }
