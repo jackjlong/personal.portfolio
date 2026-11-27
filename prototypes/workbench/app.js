@@ -3,6 +3,7 @@ import { projects, contact, sections } from '../../shared/content.js';
 const scene = document.querySelector('#scene');
 const panel = document.querySelector('#panel');
 const indexView = document.querySelector('#index');
+const motionOff = document.documentElement.classList.contains('motion-off');
 const byId = Object.fromEntries(projects.map((p) => [p.id, p]));
 
 const desk = [
@@ -10,13 +11,14 @@ const desk = [
     id: p.id,
     route: `work/${p.id}`,
     kind: p.id === 'subscription-radar' ? 'radar' : 'timecard',
-    word: 'Work',
+    word: 'work',
     glyph: '▲',
-    rot: i === 0 ? -7 : 6,
+    rot: i === 0 ? -1.4 : 1.1,
+    size: 'lg',
   })),
-  { id: 'now', route: 'now', kind: 'note', word: 'Now', glyph: '◆', rot: -3.5 },
-  { id: 'about', route: 'about', kind: 'badge', word: 'About', glyph: '●', rot: 2.5 },
-  { id: 'contact', route: 'contact', kind: 'envelope', word: 'Contact', glyph: '■', rot: -2 },
+  { id: 'now', route: 'now', kind: 'note', word: 'now', glyph: '◆', rot: -1.6, size: 'sm' },
+  { id: 'about', route: 'about', kind: 'badge', word: 'about', glyph: '●', rot: 0.6, size: 'sm' },
+  { id: 'contact', route: 'contact', kind: 'envelope', word: 'contact', glyph: '■', rot: 1.2, size: 'sm' },
 ];
 
 function esc(s) {
@@ -33,168 +35,225 @@ function objectBody(item) {
   const project = byId[item.id];
   if (item.kind === 'timecard') {
     return `<span class="name">${esc(project.name)}</span>
-      <span class="meta">time card</span>
-      <span class="punches" aria-hidden="true"><i></i><i></i><i></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span>`;
+      <span class="label">time card</span>
+      <span class="rules" aria-hidden="true"></span>
+      <span class="punches" aria-hidden="true"><i></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i></span>`;
   }
   if (item.kind === 'radar') {
     return `<span class="name">${esc(project.name)}</span>
-      <span class="meta">radar scope</span>
-      <span class="scope" aria-hidden="true"><span class="sweep"></span></span>`;
+      <span class="label">scope</span>
+      <span class="dial" aria-hidden="true"><span class="sweep"></span><span class="needle"></span></span>`;
   }
   if (item.kind === 'note') {
-    return `<span class="tape" aria-hidden="true"></span>
-      <span class="hand">${esc(sections.now)}</span>
-      <span class="draft">draft copy</span>`;
+    return `<span class="draft">draft copy</span>
+      <span class="note-line">${esc(sections.now)}</span>`;
   }
   if (item.kind === 'badge') {
-    return `<span class="hole" aria-hidden="true"></span>
+    return `<span class="clip" aria-hidden="true"></span>
       <span class="mono" aria-hidden="true">JL</span>
-      <span class="hand">${esc(sections.about)}</span>
-      <span class="draft">draft copy</span>`;
+      <span class="draft">draft copy</span>
+      <span class="note-line">${esc(sections.about)}</span>`;
   }
   return `<span class="flap" aria-hidden="true"></span>
+    <span class="who">jack long</span>
     <span class="stamps" aria-hidden="true"><i>X</i><i>@</i><i>in</i></span>
-    <span class="meta">envelope</span>`;
+    <span class="label">envelope</span>`;
 }
 
-scene.innerHTML = desk.map((item) => `
-  <a class="object ${item.kind}" id="obj-${item.id}" href="#${item.route}" style="--rot:${item.rot}deg">
-    <span class="tag"><span class="glyph" aria-hidden="true">${item.glyph}</span> ${item.word}</span>
-    ${objectBody(item)}
-  </a>`).join('');
+scene.innerHTML = `
+  <p class="mast">
+    <span class="who">jack long</span>
+    <span class="draft">draft copy</span>
+    <span class="mast-line">${esc(sections.now)}</span>
+  </p>
+  <div class="projects">
+    ${desk.filter((d) => d.size === 'lg').map(seat).join('')}
+  </div>
+  <div class="rest">
+    ${desk.filter((d) => d.size === 'sm').map(seat).join('')}
+  </div>`;
+
+function seat(item) {
+  return `<div class="seat ${item.kind}" style="--rot:${item.rot}deg">
+    <span class="shade ambient" aria-hidden="true"></span>
+    <span class="shade contact" aria-hidden="true"></span>
+    <a class="object" id="obj-${item.id}" href="#${item.route}">
+      <span class="tab"><span aria-hidden="true">${item.glyph}</span> ${item.word}</span>
+      ${objectBody(item)}
+    </a>
+  </div>`;
+}
+
+function actions(project) {
+  return `<div class="actions">
+    <button type="button" data-run="${esc(project.id)}">run it here</button>
+    <a class="secondary" href="${esc(project.live)}" target="_blank" rel="noopener">live site</a>
+    <a class="quiet" href="${esc(project.source)}">source</a>
+  </div>
+  <p class="fine">this is the real app. anything you type stays in your browser.</p>`;
+}
 
 function projectSheet(project) {
   return `<div class="layout">
-      <div>
-        <p class="tag"><span aria-hidden="true">▲</span> Work</p>
-        <h2 id="panel-title" tabindex="-1">${esc(project.name)}</h2>
-        <p class="lede">${esc(project.description)}</p>
-        <div class="actions">
-          <a href="${esc(project.live)}">Live</a>
-          <a href="${esc(project.source)}">Source</a>
-          <a href="${esc(project.live)}" target="_blank" rel="noopener">Open in new tab</a>
-          <button type="button" data-run="${esc(project.id)}">Run it here</button>
-        </div>
-        <p class="fine">This is the real app. Anything you type stays in your browser.</p>
+    <div class="copy">
+      <p class="tab"><span aria-hidden="true">▲</span> work</p>
+      <h2 id="panel-title" tabindex="-1">${esc(project.name)}</h2>
+      <p class="lede">${esc(project.description)}</p>
+      ${actions(project)}
+    </div>
+    <div class="preview">
+      <div class="screen">
+        <p class="screen-empty">not loaded yet.</p>
+        <iframe title="${esc(project.name)}, running live" loading="lazy" hidden></iframe>
       </div>
-      <div class="monitor">
-        <div class="bezel"><span>live app</span><span>local to your browser</span></div>
-        <div class="screen">
-          <p class="screen-empty">Not loaded yet. Run it here when you want the real app.</p>
-          <iframe title="${esc(project.name)}, running live" loading="lazy" hidden></iframe>
-        </div>
-      </div>
-    </div>`;
+    </div>
+  </div>`;
 }
 
 function workOverview() {
   const cards = projects.map((p) => `
-    <a class="mini" href="#work/${esc(p.id)}" id="open-${esc(p.id)}">
-      <span class="tag"><span aria-hidden="true">▲</span> Work</span>
+    <a class="mini" href="#work/${esc(p.id)}">
+      <span class="tab"><span aria-hidden="true">▲</span> work</span>
       <span class="name">${esc(p.name)}</span>
-      <span class="meta">${esc(p.description)}</span>
+      <span class="lede">${esc(p.description)}</span>
     </a>`).join('');
-  return `<h2 id="panel-title" tabindex="-1">Work</h2>
-    <p class="lede">Two small tools. Both run in the browser.</p>
+  return `<h2 id="panel-title" tabindex="-1">work</h2>
+    <p class="lede">two small tools. both run in the browser.</p>
     <div class="cards">${cards}</div>`;
 }
 
-function panelHTML(current) {
-  const bar = `<div class="sheet-bar">
-      <a href="#">Back to desk</a>
-      <a href="#">Close</a>
-    </div>`;
+function sheetHTML(current) {
+  const back = `<div class="sheet-bar"><a href="#">back to the desk</a></div>`;
   if (current.startsWith('work/')) {
     const project = byId[current.slice(5)];
     if (!project) return '';
-    return `<div class="sheet">${bar}${projectSheet(project)}</div>`;
+    return `<article class="sheet">${back}${projectSheet(project)}</article>`;
   }
-  if (current === 'work') return `<div class="sheet">${bar}${workOverview()}</div>`;
+  if (current === 'work') return `<article class="sheet">${back}${workOverview()}</article>`;
   if (current === 'now') {
-    return `<div class="sheet">${bar}
-      <p class="tag"><span aria-hidden="true">◆</span> Now</p>
-      <h2 id="panel-title" tabindex="-1">Now</h2>
+    return `<article class="sheet">${back}
+      <p class="tab"><span aria-hidden="true">◆</span> now</p>
+      <h2 id="panel-title" tabindex="-1">now</h2>
       <p class="draft">draft copy</p>
-      <p class="lede hand">${esc(sections.now)}</p>
-    </div>`;
+      <p class="lede">${esc(sections.now)}</p>
+    </article>`;
   }
   if (current === 'about') {
-    return `<div class="sheet">${bar}
-      <p class="tag"><span aria-hidden="true">●</span> About</p>
-      <h2 id="panel-title" tabindex="-1">About</h2>
+    return `<article class="sheet">${back}
+      <p class="tab"><span aria-hidden="true">●</span> about</p>
+      <h2 id="panel-title" tabindex="-1">about</h2>
       <p class="draft">draft copy</p>
       <p class="lede">${esc(sections.about)}</p>
-    </div>`;
+    </article>`;
   }
   if (current === 'contact') {
-    return `<div class="sheet">${bar}
-      <p class="tag"><span aria-hidden="true">■</span> Contact</p>
-      <h2 id="panel-title" tabindex="-1">Contact</h2>
+    return `<article class="sheet">${back}
+      <p class="tab"><span aria-hidden="true">■</span> contact</p>
+      <h2 id="panel-title" tabindex="-1">contact</h2>
       <div class="stamps-open">
-        <a class="stamp" href="${esc(contact.x)}"><span>X</span> X</a>
-        <a class="stamp" href="mailto:${esc(contact.email)}"><span>Email</span> ${esc(contact.email)}</a>
-        <a class="stamp" href="${esc(contact.linkedin)}"><span>LinkedIn</span> LinkedIn</a>
+        <a class="stamp" href="${esc(contact.x)}"><span>X</span>X</a>
+        <a class="stamp" href="mailto:${esc(contact.email)}"><span>email</span>${esc(contact.email)}</a>
+        <a class="stamp" href="${esc(contact.linkedin)}"><span>LinkedIn</span>LinkedIn</a>
       </div>
-    </div>`;
+    </article>`;
   }
   return '';
 }
 
 function indexHTML() {
   const items = projects.map((p) => `<li>
-      <a href="#work/${esc(p.id)}">${esc(p.name)}</a> —
-      ${esc(p.description)}
-      <a href="${esc(p.live)}">Live</a>
-      <a href="${esc(p.source)}">Source</a>
+      <a href="#work/${esc(p.id)}">${esc(p.name)}</a> — ${esc(p.description)}
+      <a href="${esc(p.live)}">live</a>
+      <a href="${esc(p.source)}">source</a>
     </li>`).join('');
   indexView.innerHTML = `<div class="wrap">
-    <p><a href="#">Back to desk</a></p>
-    <h1>Index</h1>
-    <p>Plain list of the four paths and both projects.</p>
-    <h2>▲ Work</h2>
-    <ul>${items}</ul>
-    <h2>◆ Now</h2>
-    <p><a href="#now">Now</a> — <span class="draft">draft copy</span> ${esc(sections.now)}</p>
-    <h2>● About</h2>
-    <p><a href="#about">About</a> — <span class="draft">draft copy</span> ${esc(sections.about)}</p>
-    <h2>■ Contact</h2>
+    <p><a href="#">back to the desk</a></p>
+    <h1>index</h1>
+    <h2>▲ work</h2><ul>${items}</ul>
+    <h2>◆ now</h2>
+    <p><a href="#now">now</a> — <span class="draft">draft copy</span> ${esc(sections.now)}</p>
+    <h2>● about</h2>
+    <p><a href="#about">about</a> — <span class="draft">draft copy</span> ${esc(sections.about)}</p>
+    <h2>■ contact</h2>
     <ul>
       <li><a href="${esc(contact.x)}">X</a></li>
       <li><a href="mailto:${esc(contact.email)}">${esc(contact.email)}</a></li>
       <li><a href="${esc(contact.linkedin)}">LinkedIn</a></li>
     </ul>
-    <p><a href="../../">All concepts</a></p>
+    <p><a href="../../">all concepts</a></p>
   </div>`;
 }
 
-const zoomFor = {
-  work: 'work',
-  now: 'now',
-  about: 'about',
-  contact: 'contact',
-};
-
-function focusFor(current) {
+function anchorId(current) {
   if (current.startsWith('work/')) return `obj-${current.slice(5)}`;
   if (current === 'work') return 'obj-shiftme';
   if (current === 'index') return 'index-link';
   return `obj-${current}`;
 }
 
+function flyFrom(card, sheet) {
+  if (motionOff || !card || !sheet) {
+    sheet.style.transform = 'none';
+    return;
+  }
+  const from = card.getBoundingClientRect();
+  const to = sheet.getBoundingClientRect();
+  const dx = from.left + from.width / 2 - (to.left + to.width / 2);
+  const dy = from.top + from.height / 2 - (to.top + to.height / 2);
+  const s = Math.max(0.22, Math.min(from.width / to.width, from.height / to.height));
+  sheet.style.transition = 'none';
+  sheet.style.transform = `translate(${dx}px, ${dy}px) scale(${s})`;
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      sheet.style.transition = 'transform .62s cubic-bezier(.16, .84, .24, 1)';
+      sheet.style.transform = 'translate(0, 0) scale(1)';
+    });
+  });
+}
+
+function bindTilt(el) {
+  const seatEl = el.parentElement;
+  const rest = () => {
+    el.style.transform = '';
+    seatEl.classList.remove('lifted');
+  };
+  if (motionOff) {
+    el.addEventListener('pointerenter', () => seatEl.classList.add('lifted'));
+    el.addEventListener('pointerleave', rest);
+    el.addEventListener('focus', () => seatEl.classList.add('lifted'));
+    el.addEventListener('blur', rest);
+    return;
+  }
+  const tilt = (clientX, clientY) => {
+    const r = el.getBoundingClientRect();
+    const px = (clientX - (r.left + r.width / 2)) / (r.width / 2);
+    const py = (clientY - (r.top + r.height / 2)) / (r.height / 2);
+    const ry = Math.max(-6, Math.min(6, px * 6));
+    const rx = Math.max(-6, Math.min(6, -py * 6));
+    el.style.transform = `rotateZ(var(--rot)) translateZ(42px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+    seatEl.classList.add('lifted');
+  };
+  el.addEventListener('pointermove', (e) => tilt(e.clientX, e.clientY));
+  el.addEventListener('pointerleave', rest);
+  el.addEventListener('focus', () => {
+    el.style.transform = 'rotateZ(var(--rot)) translateZ(42px) rotateX(4deg)';
+    seatEl.classList.add('lifted');
+  });
+  el.addEventListener('blur', rest);
+}
+
+scene.querySelectorAll('.object').forEach(bindTilt);
+
 let booted = false;
 let returnFocus = null;
 
 function sync(fromUser) {
   const current = route();
-  const onIndex = current === 'index';
-  indexView.hidden = !onIndex;
-  const html = panelHTML(current);
+  indexView.hidden = current !== 'index';
+  const html = sheetHTML(current);
   const open = Boolean(html);
   panel.hidden = !open;
   panel.innerHTML = html;
-  const zoom = current.startsWith('work/') ? current.slice(5) : (zoomFor[current] || '');
-  if (document.documentElement.classList.contains('motion-off')) scene.dataset.zoom = '';
-  else scene.dataset.zoom = open || current === 'work' ? zoom : '';
   document.querySelectorAll('.paths a').forEach((a) => {
     const href = a.getAttribute('href').slice(1);
     const on = current === href || current.startsWith(`${href}/`);
@@ -202,18 +261,14 @@ function sync(fromUser) {
     else a.removeAttribute('aria-current');
   });
   document.title = (current ? `${current} — ` : '') + 'Workbench — Jack Long';
-  if (booted && fromUser !== false && open) {
-    panel.querySelector('#panel-title')?.focus();
-  }
+  if (open) flyFrom(document.getElementById(anchorId(current)), panel.querySelector('.sheet'));
+  if (booted && fromUser !== false && open) panel.querySelector('.sheet-bar a')?.focus();
   booted = true;
 }
 
 panel.addEventListener('click', (e) => {
   const run = e.target.closest('[data-run]');
-  if (!run) {
-    if (e.target === panel) location.hash = '';
-    return;
-  }
+  if (!run) return;
   const project = byId[run.dataset.run];
   const frame = panel.querySelector('iframe');
   const empty = panel.querySelector('.screen-empty');
@@ -235,7 +290,7 @@ addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     if (!current) return;
     e.preventDefault();
-    const back = returnFocus || focusFor(current);
+    const back = returnFocus || anchorId(current);
     location.hash = '';
     requestAnimationFrame(() => document.getElementById(back)?.focus());
     return;
