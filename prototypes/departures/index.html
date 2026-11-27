@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Departures — Jack Long</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2314100e'/%3E%3Ctext x='3' y='22' font-size='13' font-family='sans-serif' fill='%23f3efe4'%3EJL%3C/text%3E%3C/svg%3E">
+  <!-- proposal: JL mark. now/about lines are draft copy. -->
+  <link rel="stylesheet" href="../../shared/base.css">
+  <link rel="stylesheet" href="./styles.css">
+  <script>
+    (function () {
+      var off = new URLSearchParams(location.search).get('motion') === 'off'
+        || matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (off) document.documentElement.classList.add('motion-off');
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip" href="#board">Skip to the board</a>
+  <header class="top">
+    <a class="brand" href="#" aria-label="JL, back to the board">JL</a>
+    <p class="title">Departures</p>
+    <a class="text" id="index-link" href="#index">Index</a>
+    <a class="text" href="../../">All concepts</a>
+    <p class="clock"><span>Boulder</span> <time id="clock">--:-- MT</time></p>
+  </header>
+  <div class="hall">
+    <nav class="rail" id="rail" aria-label="Paths"></nav>
+    <div class="stage">
+      <section class="board" id="board" aria-label="Departures"></section>
+      <section class="gate" id="gate" hidden></section>
+    </div>
+  </div>
+  <article class="index-view" id="index" hidden></article>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
