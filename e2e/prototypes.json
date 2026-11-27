@@ -1,0 +1,7 @@
+{
+  "prototypes": [
+    { "name": "workbench", "path": "/prototypes/workbench/", "expectReady": false, "hooks": {} },
+    { "name": "atlas", "path": "/prototypes/atlas/", "expectReady": false, "hooks": {} },
+    { "name": "color-fields", "path": "/prototypes/color-fields/", "expectReady": false, "hooks": {} }
+  ]
+}
