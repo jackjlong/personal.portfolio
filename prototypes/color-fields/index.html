@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Color fields — Jack Long</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23F28C28'/%3E%3Ctext x='3' y='22' font-size='14' font-family='sans-serif' fill='%23121212'%3EJL%3C/text%3E%3C/svg%3E">
+  <!-- proposal: the JL mark at the crossing is a sketch. now/about lines are draft copy. -->
+  <link rel="stylesheet" href="../../shared/base.css">
+  <link rel="stylesheet" href="./styles.css">
+  <script>
+    (function () {
+      var off = new URLSearchParams(location.search).get('motion') === 'off'
+        || matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (off) document.documentElement.classList.add('motion-off');
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip" href="#fields">Skip to fields</a>
+  <div class="chrome">
+    <a id="index-link" href="#index">Index</a>
+    <a href="../../">All concepts</a>
+  </div>
+  <div class="mark" aria-hidden="true"><span>JL</span></div>
+  <div class="stage" id="fields"></div>
+  <article class="index-view" id="index" hidden></article>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
